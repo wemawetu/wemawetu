@@ -1,15 +1,57 @@
+import { useEffect, useState } from "react";
 import { Users, Droplets, Home, TreePine, GraduationCap, Heart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const impactStats = [
-  { icon: Users, value: "50,000+", label: "Lives Impacted", color: "text-primary" },
-  { icon: Droplets, value: "120+", label: "Water Projects", color: "text-secondary" },
-  { icon: Home, value: "500+", label: "Homes Built", color: "text-accent" },
-  { icon: TreePine, value: "25,000+", label: "Trees Planted", color: "text-primary" },
-  { icon: GraduationCap, value: "3,000+", label: "Students Supported", color: "text-secondary" },
-  { icon: Heart, value: "15+", label: "Communities Served", color: "text-accent" },
+const iconMap: { [key: string]: React.ElementType } = {
+  Users,
+  Droplets,
+  Home,
+  TreePine,
+  GraduationCap,
+  Heart,
+};
+
+interface ImpactStat {
+  id: string;
+  icon: string;
+  value: string;
+  label: string;
+  color: string;
+  sort_order: number | null;
+}
+
+const defaultStats = [
+  { icon: "Users", value: "50,000+", label: "Lives Impacted", color: "text-primary" },
+  { icon: "Droplets", value: "120+", label: "Water Projects", color: "text-secondary" },
+  { icon: "Home", value: "500+", label: "Homes Built", color: "text-accent" },
+  { icon: "TreePine", value: "25,000+", label: "Trees Planted", color: "text-primary" },
+  { icon: "GraduationCap", value: "3,000+", label: "Students Supported", color: "text-secondary" },
+  { icon: "Heart", value: "15+", label: "Communities Served", color: "text-accent" },
 ];
 
 export function ImpactSection() {
+  const [stats, setStats] = useState<ImpactStat[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      const { data, error } = await supabase
+        .from("impact_stats")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order");
+
+      if (error || !data || data.length === 0) {
+        // Use defaults if no data
+        setStats(defaultStats.map((s, i) => ({ ...s, id: String(i), sort_order: i })));
+      } else {
+        setStats(data);
+      }
+      setLoading(false);
+    }
+    fetchStats();
+  }, []);
+
   return (
     <section className="py-24 bg-foreground text-primary-foreground overflow-hidden">
       <div className="container mx-auto px-4">
@@ -28,20 +70,23 @@ export function ImpactSection() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {impactStats.map((stat, index) => (
-            <div
-              key={index}
-              className="text-center p-6 rounded-2xl bg-primary-foreground/5 hover:bg-primary-foreground/10 transition-colors duration-300"
-            >
-              <stat.icon className={`h-8 w-8 mx-auto mb-4 ${stat.color}`} />
-              <div className="font-display text-2xl md:text-3xl font-bold mb-1">
-                {stat.value}
+          {stats.map((stat, index) => {
+            const IconComponent = iconMap[stat.icon] || Heart;
+            return (
+              <div
+                key={stat.id || index}
+                className="text-center p-6 rounded-2xl bg-primary-foreground/5 hover:bg-primary-foreground/10 transition-colors duration-300"
+              >
+                <IconComponent className={`h-8 w-8 mx-auto mb-4 ${stat.color}`} />
+                <div className="font-display text-2xl md:text-3xl font-bold mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-primary-foreground/60 text-sm">
+                  {stat.label}
+                </div>
               </div>
-              <div className="text-primary-foreground/60 text-sm">
-                {stat.label}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Quote */}

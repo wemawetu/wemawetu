@@ -163,6 +163,87 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_config: {
+        Row: {
+          active: boolean | null
+          coin_name: string
+          coin_symbol: string
+          contract_address: string
+          created_at: string
+          description: string | null
+          how_to_buy: string | null
+          id: string
+          logo_url: string | null
+          network: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          coin_name: string
+          coin_symbol: string
+          contract_address: string
+          created_at?: string
+          description?: string | null
+          how_to_buy?: string | null
+          id?: string
+          logo_url?: string | null
+          network?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          coin_name?: string
+          coin_symbol?: string
+          contract_address?: string
+          created_at?: string
+          description?: string | null
+          how_to_buy?: string | null
+          id?: string
+          logo_url?: string | null
+          network?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      impact_stats: {
+        Row: {
+          active: boolean | null
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          label: string
+          sort_order: number | null
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          active?: boolean | null
+          color?: string
+          created_at?: string
+          icon: string
+          id?: string
+          label: string
+          sort_order?: number | null
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          active?: boolean | null
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          label?: string
+          sort_order?: number | null
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -190,6 +271,45 @@ export type Database = {
           is_admin?: boolean | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      programs: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          image_url: string | null
+          link: string | null
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
