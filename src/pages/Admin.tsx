@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, FileText, Bell, Phone, 
   LogOut, Menu, X, Plus, Trash2, Edit, Eye, EyeOff,
-  Loader2, Save, Mail, BarChart3, Coins, Image
+  Loader2, Save, Mail, BarChart3, Coins, Image,
+  CreditCard, ShoppingBag
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { PaymentConfigTab } from "@/components/admin/PaymentConfigTab";
+import { MerchandiseTab } from "@/components/admin/MerchandiseTab";
 
-type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto";
+type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise";
 
 interface Blog {
   id: string;
@@ -377,6 +380,8 @@ export default function Admin() {
     { id: "impact", label: "Impact Stats", icon: BarChart3 },
     { id: "programs", label: "Programs", icon: Image },
     { id: "crypto", label: "Crypto Coin", icon: Coins },
+    { id: "payments", label: "Payment Methods", icon: CreditCard },
+    { id: "merchandise", label: "Merchandise", icon: ShoppingBag },
   ];
 
   const iconOptions = ["Users", "Droplets", "Home", "TreePine", "GraduationCap", "Heart", "Leaf"];
@@ -846,6 +851,12 @@ export default function Admin() {
               )}
             </div>
           )}
+
+          {/* Payment Methods */}
+          {activeTab === "payments" && <PaymentConfigTab />}
+
+          {/* Merchandise */}
+          {activeTab === "merchandise" && <MerchandiseTab />}
         </main>
       </div>
     </div>
