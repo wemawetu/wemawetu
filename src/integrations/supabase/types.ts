@@ -244,6 +244,90 @@ export type Database = {
         }
         Relationships: []
       }
+      merchandise: {
+        Row: {
+          active: boolean | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          impact_message: string | null
+          name: string
+          price: number
+          sort_order: number | null
+          stock: number | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          impact_message?: string | null
+          name: string
+          price: number
+          sort_order?: number | null
+          stock?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          impact_message?: string | null
+          name?: string
+          price?: number
+          sort_order?: number | null
+          stock?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_config: {
+        Row: {
+          config: Json | null
+          created_at: string
+          description: string | null
+          display_name: string
+          enabled: boolean | null
+          icon: string | null
+          id: string
+          provider: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          description?: string | null
+          display_name: string
+          enabled?: boolean | null
+          icon?: string | null
+          id?: string
+          provider: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          enabled?: boolean | null
+          icon?: string | null
+          id?: string
+          provider?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
