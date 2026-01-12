@@ -125,7 +125,7 @@ export default function Donate() {
       return;
     }
     if (displayAmount <= 0) {
-      toast({ title: "Enter donation amount", variant: "destructive" });
+      toast({ title: "Enter a valid amount", variant: "destructive" });
       return;
     }
 
@@ -133,32 +133,49 @@ export default function Donate() {
 
     const method = paymentMethods.find(p => p.provider === selectedPaymentMethod);
     
-    if (selectedPaymentMethod === "paypal") {
-      // Open PayPal payment link
-      const paypalEmail = method?.config?.email;
-      if (paypalEmail) {
-        window.open(`https://www.paypal.com/paypalme/${paypalEmail}/${displayAmount}`, "_blank");
-      } else {
-        toast({ title: "PayPal not configured", variant: "destructive" });
+    try {
+      if (selectedPaymentMethod === "paypal") {
+        const paypalEmail = method?.config?.email;
+        if (paypalEmail) {
+          window.open(`https://www.paypal.com/paypalme/${paypalEmail}/${displayAmount}`, "_blank");
+        } else {
+          toast({ title: "PayPal not configured", variant: "destructive" });
+        }
+      } else if (selectedPaymentMethod === "mpesa_till" || selectedPaymentMethod === "mpesa_paybill") {
+        if (!mpesaPhone) {
+          toast({ title: "Enter M-Pesa phone number", variant: "destructive" });
+          setProcessing(false);
+          return;
+        }
+        
+        // Call M-Pesa STK Push edge function
+        const { data, error } = await supabase.functions.invoke('mpesa-stk-push', {
+          body: {
+            phone: mpesaPhone,
+            amount: displayAmount,
+            paymentType: selectedPaymentMethod === "mpesa_till" ? "till" : "paybill",
+            reference: "DONATION"
+          }
+        });
+
+        if (error) {
+          toast({ title: "M-Pesa Error", description: error.message, variant: "destructive" });
+        } else if (data?.success) {
+          toast({ 
+            title: "Check Your Phone!", 
+            description: "Enter your M-Pesa PIN to complete the donation."
+          });
+        } else {
+          toast({ title: "M-Pesa Error", description: data?.error || "Failed to initiate payment", variant: "destructive" });
+        }
+      } else if (selectedPaymentMethod === "donorbox") {
+        const embedUrl = method?.config?.embed_url;
+        if (embedUrl) {
+          window.open(embedUrl, "_blank");
+        }
       }
-    } else if (selectedPaymentMethod === "mpesa_till" || selectedPaymentMethod === "mpesa_paybill") {
-      // M-Pesa STK Push would be handled via edge function
-      if (!mpesaPhone) {
-        toast({ title: "Enter M-Pesa phone number", variant: "destructive" });
-        setProcessing(false);
-        return;
-      }
-      toast({ 
-        title: "M-Pesa Payment", 
-        description: selectedPaymentMethod === "mpesa_till" 
-          ? `Pay to Till: ${method?.config?.till_number}` 
-          : `Paybill: ${method?.config?.paybill_number}, Account: ${method?.config?.account_reference}`
-      });
-    } else if (selectedPaymentMethod === "donorbox") {
-      const embedUrl = method?.config?.embed_url;
-      if (embedUrl) {
-        window.open(embedUrl, "_blank");
-      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
 
     setProcessing(false);

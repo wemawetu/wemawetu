@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { PaymentConfigTab } from "@/components/admin/PaymentConfigTab";
 import { MerchandiseTab } from "@/components/admin/MerchandiseTab";
+import { ContactInfoTab } from "@/components/admin/ContactInfoTab";
 
 type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise";
 
@@ -576,48 +577,7 @@ export default function Admin() {
 
           {/* Contact Info */}
           {activeTab === "contacts" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h1 className="font-display text-3xl font-bold text-foreground">Contact Info</h1>
-                <Button onClick={() => setEditingContact({ id: "", type: "email", label: "", value: "", icon: null, sort_order: 0, active: true })}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Contact
-                </Button>
-              </div>
-
-              {editingContact && (
-                <div className="bg-card p-6 rounded-xl border border-border space-y-4">
-                  <h2 className="font-semibold text-foreground">{editingContact.id ? "Edit" : "New"} Contact</h2>
-                  <select value={editingContact.type} onChange={(e) => setEditingContact({ ...editingContact, type: e.target.value })} className="w-full px-4 py-3 rounded-lg border border-border bg-background">
-                    <option value="email">Email</option>
-                    <option value="phone">Phone</option>
-                    <option value="address">Address</option>
-                    <option value="social">Social Media</option>
-                  </select>
-                  <input type="text" placeholder="Label" value={editingContact.label} onChange={(e) => setEditingContact({ ...editingContact, label: e.target.value })} className="w-full px-4 py-3 rounded-lg border border-border bg-background" />
-                  <input type="text" placeholder="Value" value={editingContact.value} onChange={(e) => setEditingContact({ ...editingContact, value: e.target.value })} className="w-full px-4 py-3 rounded-lg border border-border bg-background" />
-                  <div className="flex gap-3">
-                    <Button onClick={() => saveContactInfo(editingContact)} disabled={saving}>Save</Button>
-                    <Button variant="outline" onClick={() => setEditingContact(null)}>Cancel</Button>
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {contactInfo.map((contact) => (
-                  <div key={contact.id} className="bg-card p-4 rounded-xl border border-border flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-foreground">{contact.label}</h3>
-                      <p className="text-sm text-muted-foreground">{contact.type}: {contact.value}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => setEditingContact(contact)}><Edit className="h-4 w-4" /></Button>
-                      <Button size="sm" variant="ghost" onClick={() => deleteContactInfo(contact.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ContactInfoTab contactInfo={contactInfo} onDataChange={loadData} />
           )}
 
           {/* Submissions */}

@@ -90,23 +90,16 @@ export function Header() {
             ))}
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button
-              variant={isScrolled || !isHomePage ? "outline" : "heroOutline"}
-              size="sm"
-              asChild
-            >
-              <Link to="/admin">Admin</Link>
-            </Button>
             <Button
               variant={isScrolled || !isHomePage ? "default" : "hero"}
               size="sm"
               asChild
             >
-              <Link to="/donate">
+              <Link to="/give">
                 <Heart className="h-4 w-4" />
-                Donate
+                Give
               </Link>
             </Button>
           </div>
@@ -151,15 +144,10 @@ export function Header() {
               ))}
               <hr className="my-2 border-border" />
               <div className="flex flex-col gap-2">
-                <Button variant="outline" asChild>
-                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                    Admin Panel
-                  </Link>
-                </Button>
                 <Button asChild>
-                  <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link to="/give" onClick={() => setIsMobileMenuOpen(false)}>
                     <Heart className="h-4 w-4" />
-                    Donate Now
+                    Give Now
                   </Link>
                 </Button>
               </div>
