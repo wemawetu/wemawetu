@@ -1,7 +1,79 @@
 import { Link } from "react-router-dom";
-import { Droplets, Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Droplets, Heart, Mail, Phone, MapPin, Globe, Clock, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+
+interface ContactInfo {
+  id: string;
+  type: string;
+  label: string;
+  value: string;
+  icon: string | null;
+}
+
+const iconMap: Record<string, React.ElementType> = {
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Clock,
+};
+
+const getIconFromType = (type: string, iconName: string | null) => {
+  if (iconName && iconMap[iconName]) return iconMap[iconName];
+  switch (type) {
+    case "email": return Mail;
+    case "phone": return Phone;
+    case "address": return MapPin;
+    case "website": return Globe;
+    case "hours": return Clock;
+    default: return Mail;
+  }
+};
 
 export function Footer() {
+  const [contactInfo, setContactInfo] = useState<ContactInfo[]>([]);
+
+  useEffect(() => {
+    async function fetchContactInfo() {
+      const { data } = await supabase
+        .from("contact_info")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order");
+      
+      if (data) {
+        setContactInfo(data);
+      }
+    }
+    fetchContactInfo();
+  }, []);
+
+  const renderContactValue = (info: ContactInfo) => {
+    switch (info.type) {
+      case "email":
+        return (
+          <a href={`mailto:${info.value}`} className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
+            {info.value}
+          </a>
+        );
+      case "phone":
+        return (
+          <a href={`tel:${info.value.replace(/\s/g, '')}`} className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
+            {info.value}
+          </a>
+        );
+      case "website":
+        return (
+          <a href={info.value} target="_blank" rel="noopener noreferrer" className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
+            {info.value}
+          </a>
+        );
+      default:
+        return <span className="text-primary-foreground/70 text-sm">{info.value}</span>;
+    }
+  };
+
   return (
     <footer className="bg-foreground text-primary-foreground">
       {/* Main Footer */}
@@ -76,24 +148,41 @@ export function Footer() {
           <div>
             <h4 className="font-display text-lg font-semibold mb-4">Contact Us</h4>
             <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-primary-foreground/70 text-sm">
-                  Nairobi, Kenya
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-primary shrink-0" />
-                <a href="tel:+254700000000" className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
-                  +254 700 000 000
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-primary shrink-0" />
-                <a href="mailto:info@wemawetu.org" className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
-                  info@wemawetu.org
-                </a>
-              </li>
+              {contactInfo.length > 0 ? (
+                contactInfo.map((info) => {
+                  const Icon = getIconFromType(info.type, info.icon);
+                  return (
+                    <li key={info.id} className="flex items-start gap-3">
+                      <Icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-primary-foreground/50 text-xs block">{info.label}</span>
+                        {renderContactValue(info)}
+                      </div>
+                    </li>
+                  );
+                })
+              ) : (
+                <>
+                  <li className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-primary-foreground/70 text-sm">
+                      Nairobi, Kenya
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Phone className="h-5 w-5 text-primary shrink-0" />
+                    <a href="tel:+254700000000" className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
+                      +254 700 000 000
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Mail className="h-5 w-5 text-primary shrink-0" />
+                    <a href="mailto:info@wemawetu.org" className="text-primary-foreground/70 hover:text-primary transition-colors text-sm">
+                      info@wemawetu.org
+                    </a>
+                  </li>
+                </>
+              )}
             </ul>
 
             {/* Social Links */}
