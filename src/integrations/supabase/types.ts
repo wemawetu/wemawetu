@@ -97,6 +97,128 @@ export type Database = {
           },
         ]
       }
+      campaign_donations: {
+        Row: {
+          amount: number
+          campaign_id: string
+          created_at: string
+          donor_email: string | null
+          donor_name: string
+          donor_phone: string | null
+          id: string
+          is_anonymous: boolean | null
+          message: string | null
+          net_amount: number
+          payment_method: string
+          payment_reference: string | null
+          payment_status: string
+          platform_fee: number
+        }
+        Insert: {
+          amount: number
+          campaign_id: string
+          created_at?: string
+          donor_email?: string | null
+          donor_name?: string
+          donor_phone?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          message?: string | null
+          net_amount?: number
+          payment_method?: string
+          payment_reference?: string | null
+          payment_status?: string
+          platform_fee?: number
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string
+          created_at?: string
+          donor_email?: string | null
+          donor_name?: string
+          donor_phone?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          message?: string | null
+          net_amount?: number
+          payment_method?: string
+          payment_reference?: string | null
+          payment_status?: string
+          platform_fee?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_donations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          donor_count: number | null
+          end_date: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          mpesa_phone: string
+          raised_amount: number
+          rejection_reason: string | null
+          slug: string
+          status: string
+          story: string | null
+          target_amount: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description: string
+          donor_count?: number | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          mpesa_phone: string
+          raised_amount?: number
+          rejection_reason?: string | null
+          slug: string
+          status?: string
+          story?: string | null
+          target_amount: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          donor_count?: number | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          mpesa_phone?: string
+          raised_amount?: number
+          rejection_reason?: string | null
+          slug?: string
+          status?: string
+          story?: string | null
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_info: {
         Row: {
           active: boolean | null
@@ -397,15 +519,89 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          amount: number
+          campaign_id: string
+          created_at: string
+          id: string
+          mpesa_phone: string
+          processed_at: string | null
+          rejection_reason: string | null
+          status: string
+          transaction_reference: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          campaign_id: string
+          created_at?: string
+          id?: string
+          mpesa_phone: string
+          processed_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          transaction_reference?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          mpesa_phone?: string
+          processed_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          transaction_reference?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_requests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -532,6 +728,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
