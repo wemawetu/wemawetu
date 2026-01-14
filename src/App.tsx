@@ -13,6 +13,9 @@ import Donate from "./pages/Donate";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Crowdfunding from "./pages/Crowdfunding";
+import CampaignDetail from "./pages/CampaignDetail";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/give" element={<Donate />} />
           <Route path="/donate" element={<Donate />} />
+          <Route path="/crowdfunding" element={<Crowdfunding />} />
+          <Route path="/campaign/:slug" element={<CampaignDetail />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
