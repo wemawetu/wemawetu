@@ -60,12 +60,23 @@ serve(async (req) => {
       );
     }
 
-    const config = paymentConfig.config as Record<string, string>;
-    const consumerKey = config.consumer_key;
-    const consumerSecret = config.consumer_secret;
-    const passkey = config.passkey;
-    const shortcode = paymentType === 'till' ? config.till_number : config.paybill_number;
-    const callbackUrl = config.callback_url || `${supabaseUrl}/functions/v1/mpesa-callback`;
+    const config = (paymentConfig.config ?? {}) as Record<string, any>;
+
+    const consumerKey = String(config.consumer_key ?? '').trim();
+    const consumerSecret = String(config.consumer_secret ?? '').trim();
+    const passkey = String(config.passkey ?? '').trim();
+
+    const shortcode = String(
+      paymentType === 'till' ? config.till_number : config.paybill_number
+    ).trim();
+
+    const callbackUrl = String(
+      config.callback_url || `${supabaseUrl}/functions/v1/mpesa-callback`
+    ).trim();
+
+    const sandbox = Boolean(config.sandbox ?? true);
+    const baseUrl = sandbox ? 'https://sandbox.safaricom.co.ke' : 'https://api.safaricom.co.ke';
+
 
     if (!consumerKey || !consumerSecret || !passkey || !shortcode) {
       console.error('Missing M-Pesa credentials');
@@ -76,14 +87,16 @@ serve(async (req) => {
     }
 
     // Generate access token
-    console.log('Generating M-Pesa access token...');
+    console.log(`Generating M-Pesa access token (sandbox=${sandbox})...`);
     const authString = btoa(`${consumerKey}:${consumerSecret}`);
+
     const tokenResponse = await fetch(
-      'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+      `${baseUrl}/oauth/v1/generate?grant_type=client_credentials`,
       {
         method: 'GET',
         headers: {
           'Authorization': `Basic ${authString}`,
+          'Accept': 'application/json',
         },
       }
     );
@@ -97,8 +110,17 @@ serve(async (req) => {
       );
     }
 
-    const tokenData = await tokenResponse.json();
-    const accessToken = tokenData.access_token;
+    const tokenData = await tokenResponse.json().catch(() => ({} as any));
+    const accessToken = String((tokenData as any)?.access_token ?? '').trim();
+
+    if (!accessToken) {
+      console.error('Token response missing access_token:', tokenData);
+      return new Response(
+        JSON.stringify({ error: 'Failed to authenticate with M-Pesa (no access token returned)' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log('Access token obtained successfully');
 
     // Generate timestamp and password
@@ -126,19 +148,39 @@ serve(async (req) => {
     console.log('Payload:', JSON.stringify(stkPayload, null, 2));
 
     const stkResponse = await fetch(
-      'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+      `${baseUrl}/mpesa/stkpush/v1/processrequest`,
       {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(stkPayload),
       }
     );
 
-    const stkResult = await stkResponse.json();
+    const stkText = await stkResponse.text();
+    let stkResult: any = {};
+    try {
+      stkResult = JSON.parse(stkText);
+    } catch {
+      stkResult = { raw: stkText };
+    }
+
     console.log('STK Push response:', JSON.stringify(stkResult));
+
+    if (!stkResponse.ok) {
+      console.error('STK Push HTTP error:', stkResponse.status, stkResult);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: stkResult?.errorMessage || stkResult?.ResponseDescription || 'STK Push request failed',
+          status: stkResponse.status,
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (stkResult.ResponseCode === '0') {
       return new Response(

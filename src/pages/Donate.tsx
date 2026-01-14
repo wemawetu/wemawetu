@@ -120,24 +120,36 @@ export default function Donate() {
   }
 
   async function handleDonation() {
+    await processPayment(displayAmount, "DONATION");
+  }
+
+  async function handleCheckout() {
+    if (cart.length === 0) {
+      toast({ title: "Your cart is empty", variant: "destructive" });
+      return;
+    }
+    await processPayment(cartTotal, `MERCH-${Date.now()}`);
+  }
+
+  async function processPayment(amount: number, reference: string) {
     if (!selectedPaymentMethod) {
       toast({ title: "Select payment method", variant: "destructive" });
       return;
     }
-    if (displayAmount <= 0) {
+    if (amount <= 0) {
       toast({ title: "Enter a valid amount", variant: "destructive" });
       return;
     }
 
     setProcessing(true);
 
-    const method = paymentMethods.find(p => p.provider === selectedPaymentMethod);
-    
+    const method = paymentMethods.find((p) => p.provider === selectedPaymentMethod);
+
     try {
       if (selectedPaymentMethod === "paypal") {
         const paypalEmail = method?.config?.email;
         if (paypalEmail) {
-          window.open(`https://www.paypal.com/paypalme/${paypalEmail}/${displayAmount}`, "_blank");
+          window.open(`https://www.paypal.com/paypalme/${paypalEmail}/${amount}`, "_blank");
         } else {
           toast({ title: "PayPal not configured", variant: "destructive" });
         }
@@ -147,31 +159,44 @@ export default function Donate() {
           setProcessing(false);
           return;
         }
-        
-        // Call M-Pesa STK Push edge function
-        const { data, error } = await supabase.functions.invoke('mpesa-stk-push', {
+
+        const mpesaReference =
+          selectedPaymentMethod === "mpesa_paybill"
+            ? String(method?.config?.account_reference || reference || "DONATION")
+            : reference;
+
+        // Call M-Pesa STK Push backend function
+        const { data, error } = await supabase.functions.invoke("mpesa-stk-push", {
           body: {
             phone: mpesaPhone,
-            amount: displayAmount,
+            amount,
             paymentType: selectedPaymentMethod === "mpesa_till" ? "till" : "paybill",
-            reference: "DONATION"
-          }
+            reference: mpesaReference,
+          },
         });
 
         if (error) {
           toast({ title: "M-Pesa Error", description: error.message, variant: "destructive" });
         } else if (data?.success) {
-          toast({ 
-            title: "Check Your Phone!", 
-            description: "Enter your M-Pesa PIN to complete the donation."
+          toast({
+            title: "Check Your Phone!",
+            description: "Enter your M-Pesa PIN to complete the payment.",
           });
+          if (reference.startsWith("MERCH-")) setCart([]);
         } else {
-          toast({ title: "M-Pesa Error", description: data?.error || "Failed to initiate payment", variant: "destructive" });
+          toast({
+            title: "M-Pesa Error",
+            description: data?.error || "Failed to initiate payment",
+            variant: "destructive",
+          });
         }
       } else if (selectedPaymentMethod === "donorbox") {
         const embedUrl = method?.config?.embed_url;
         if (embedUrl) {
           window.open(embedUrl, "_blank");
+          if (reference.startsWith("MERCH-")) setCart([]);
+        } else {
+          toast({ title: "Donorbox not configured", variant: "destructive" });
         }
       }
     } catch (error: any) {
