@@ -8,9 +8,11 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/programs", label: "Programs" },
   { href: "/impact", label: "Impact" },
+  { href: "/crowdfunding", label: "Crowdfunding" },
   { href: "/blog", label: "Blog" },
   { href: "/get-involved", label: "Get Involved" },
   { href: "/contact", label: "Contact" },
+  { href: "/give", label: "Donate" },
 ];
 
 export function Header() {
@@ -90,19 +92,6 @@ export function Header() {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button
-              variant={isScrolled || !isHomePage ? "default" : "hero"}
-              size="sm"
-              asChild
-            >
-              <Link to="/give">
-                <Heart className="h-4 w-4" />
-                Give
-              </Link>
-            </Button>
-          </div>
 
           {/* Mobile Menu Toggle */}
           <button
@@ -142,15 +131,6 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              <hr className="my-2 border-border" />
-              <div className="flex flex-col gap-2">
-                <Button asChild>
-                  <Link to="/give" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Heart className="h-4 w-4" />
-                    Give Now
-                  </Link>
-                </Button>
-              </div>
             </div>
           </div>
         )}

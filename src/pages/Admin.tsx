@@ -6,15 +6,16 @@ import {
   LayoutDashboard, FileText, Bell, Phone, 
   LogOut, Menu, X, Plus, Trash2, Edit, Eye, EyeOff,
   Loader2, Save, Mail, BarChart3, Coins, Image,
-  CreditCard, ShoppingBag
+  CreditCard, ShoppingBag, Megaphone
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { PaymentConfigTab } from "@/components/admin/PaymentConfigTab";
 import { MerchandiseTab } from "@/components/admin/MerchandiseTab";
 import { ContactInfoTab } from "@/components/admin/ContactInfoTab";
+import CampaignsTab from "@/components/admin/CampaignsTab";
 
-type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise";
+type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise" | "campaigns";
 
 interface Blog {
   id: string;
@@ -374,6 +375,7 @@ export default function Admin() {
 
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "campaigns", label: "Crowdfunding", icon: Megaphone },
     { id: "blogs", label: "Blog Posts", icon: FileText },
     { id: "announcements", label: "Announcements", icon: Bell },
     { id: "contacts", label: "Contact Info", icon: Phone },
@@ -817,6 +819,9 @@ export default function Admin() {
 
           {/* Merchandise */}
           {activeTab === "merchandise" && <MerchandiseTab />}
+
+          {/* Campaigns / Crowdfunding */}
+          {activeTab === "campaigns" && <CampaignsTab />}
         </main>
       </div>
     </div>

@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Crowdfunding from "./pages/Crowdfunding";
 import CampaignDetail from "./pages/CampaignDetail";
 import Dashboard from "./pages/Dashboard";
+import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/give" element={<Donate />} />
           <Route path="/donate" element={<Donate />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/crowdfunding" element={<Crowdfunding />} />
           <Route path="/campaign/:slug" element={<CampaignDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />

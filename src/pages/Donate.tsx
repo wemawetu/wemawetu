@@ -680,7 +680,15 @@ export default function Donate() {
                         </div>
                       </div>
 
-                      <Button className="w-full" disabled={paymentMethods.length === 0}>
+                      <Button 
+                        className="w-full" 
+                        disabled={paymentMethods.length === 0}
+                        onClick={() => {
+                          // Store cart in sessionStorage and redirect to checkout
+                          sessionStorage.setItem('cart', JSON.stringify(cart));
+                          window.location.href = '/checkout';
+                        }}
+                      >
                         <CreditCard className="mr-2 h-4 w-4" />
                         Checkout
                       </Button>
