@@ -113,6 +113,7 @@ export type Database = {
           payment_reference: string | null
           payment_status: string
           platform_fee: number
+          receipt_url: string | null
         }
         Insert: {
           amount: number
@@ -129,6 +130,7 @@ export type Database = {
           payment_reference?: string | null
           payment_status?: string
           platform_fee?: number
+          receipt_url?: string | null
         }
         Update: {
           amount?: number
@@ -145,6 +147,7 @@ export type Database = {
           payment_reference?: string | null
           payment_status?: string
           platform_fee?: number
+          receipt_url?: string | null
         }
         Relationships: [
           {

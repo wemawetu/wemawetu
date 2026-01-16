@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -12,11 +12,14 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
-  Heart, Users, Target, Calendar, Share2, ArrowLeft,
-  Phone, Sparkles, CheckCircle, AlertCircle
+  Heart, Users, Target, Calendar, ArrowLeft,
+  Phone, Sparkles, CheckCircle, AlertCircle, Download, Printer
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ShareCampaign } from '@/components/ShareCampaign';
+import { DonationReceipt } from '@/components/DonationReceipt';
 
 interface Campaign {
   id: string;
@@ -50,6 +53,9 @@ const CampaignDetail = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [donating, setDonating] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [lastDonation, setLastDonation] = useState<Donation | null>(null);
+  const receiptRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Donation form
@@ -196,6 +202,17 @@ const CampaignDetail = () => {
       const result = response.data;
 
       if (result.success) {
+        // Show receipt
+        setLastDonation({
+          id: donationRecord.id,
+          donor_name: isAnonymous ? 'Anonymous' : (donorName || 'Anonymous'),
+          amount: donationAmount,
+          message: message || null,
+          is_anonymous: isAnonymous,
+          created_at: new Date().toISOString()
+        });
+        setShowReceipt(true);
+
         toast({
           title: "STK Push Sent!",
           description: "Please enter your M-Pesa PIN on your phone to complete the donation.",
@@ -218,6 +235,30 @@ const CampaignDetail = () => {
       });
     } finally {
       setDonating(false);
+    }
+  };
+
+  const printReceipt = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow && receiptRef.current) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Donation Receipt</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; }
+              .container { max-width: 400px; margin: 0 auto; padding: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              ${receiptRef.current.innerHTML}
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
     }
   };
 
@@ -414,10 +455,10 @@ const CampaignDetail = () => {
                         </div>
                       </div>
 
-                      <Button variant="outline" className="w-full gap-2" onClick={shareCampaign}>
-                        <Share2 className="h-4 w-4" />
-                        Share Campaign
-                      </Button>
+                      <ShareCampaign 
+                        campaign={campaign} 
+                        className="w-full"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -532,6 +573,35 @@ const CampaignDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Donation Receipt Dialog */}
+      <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Donation Receipt</DialogTitle>
+          </DialogHeader>
+          {lastDonation && campaign && (
+            <>
+              <DonationReceipt
+                ref={receiptRef}
+                donation={lastDonation}
+                campaign={campaign}
+                platformFee={lastDonation.amount * 0.1}
+              />
+              <div className="flex gap-2 mt-4">
+                <Button variant="outline" className="flex-1 gap-2" onClick={printReceipt}>
+                  <Printer className="h-4 w-4" />
+                  Print Receipt
+                </Button>
+                <Button className="flex-1 gap-2" onClick={() => setShowReceipt(false)}>
+                  <CheckCircle className="h-4 w-4" />
+                  Done
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

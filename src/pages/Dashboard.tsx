@@ -16,9 +16,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { 
   Plus, Target, Users, Wallet, TrendingUp, Clock, CheckCircle, 
   XCircle, AlertCircle, Phone, Edit, Trash2, Eye, DollarSign,
-  ArrowDownCircle
+  ArrowDownCircle, Share2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUpload } from '@/components/ImageUpload';
+import { ShareCampaign } from '@/components/ShareCampaign';
 
 interface Campaign {
   id: string;
@@ -417,15 +419,12 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Campaign Image URL</Label>
-                    <Input
-                      placeholder="https://example.com/image.jpg"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    />
-                    <p className="text-xs text-muted-foreground">Paste a link to your campaign image</p>
-                  </div>
+                  <ImageUpload
+                    value={formData.image_url}
+                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                    label="Campaign Image"
+                    placeholder="Upload an image or paste a URL"
+                  />
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
@@ -561,6 +560,11 @@ const Dashboard = () => {
                                   View
                                 </Button>
                               </Link>
+                              <ShareCampaign 
+                                campaign={campaign} 
+                                variant="outline" 
+                                size="sm"
+                              />
                               <Button 
                                 variant="default" 
                                 size="sm" 
