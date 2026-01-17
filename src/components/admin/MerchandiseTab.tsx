@@ -6,6 +6,7 @@ import {
   Eye, EyeOff, Sparkles, DollarSign
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MerchandiseImageUpload } from "@/components/MerchandiseImageUpload";
 
 interface Merchandise {
   id: string;
@@ -192,16 +193,11 @@ export function MerchandiseTab() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Image URL</label>
-            <input
-              type="url"
-              value={editing.image_url || ""}
-              onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
-              placeholder="https://..."
-              className="w-full px-4 py-3 rounded-lg border border-border bg-background"
-            />
-          </div>
+          <MerchandiseImageUpload
+            value={editing.image_url}
+            onChange={(url) => setEditing({ ...editing, image_url: url })}
+            label="Product Image"
+          />
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2 flex items-center gap-2">
