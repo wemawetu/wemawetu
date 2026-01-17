@@ -14,8 +14,9 @@ import { PaymentConfigTab } from "@/components/admin/PaymentConfigTab";
 import { MerchandiseTab } from "@/components/admin/MerchandiseTab";
 import { ContactInfoTab } from "@/components/admin/ContactInfoTab";
 import CampaignsTab from "@/components/admin/CampaignsTab";
+import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 
-type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise" | "campaigns";
+type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise" | "campaigns" | "analytics";
 
 interface Blog {
   id: string;
@@ -375,6 +376,7 @@ export default function Admin() {
 
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "campaigns", label: "Crowdfunding", icon: Megaphone },
     { id: "blogs", label: "Blog Posts", icon: FileText },
     { id: "announcements", label: "Announcements", icon: Bell },
@@ -477,6 +479,9 @@ export default function Admin() {
               </div>
             </div>
           )}
+
+          {/* Analytics Dashboard */}
+          {activeTab === "analytics" && <AnalyticsDashboard />}
 
           {/* Blogs */}
           {activeTab === "blogs" && (

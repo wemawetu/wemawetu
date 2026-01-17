@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ const iconMap: Record<string, any> = {
 };
 
 export default function Donate() {
+  const navigate = useNavigate();
   const [selectedAmount, setSelectedAmount] = useState<number | "custom">(100);
   const [customAmount, setCustomAmount] = useState("");
   const [isMonthly, setIsMonthly] = useState(false);
@@ -682,15 +684,15 @@ export default function Donate() {
 
                       <Button 
                         className="w-full" 
-                        disabled={paymentMethods.length === 0}
+                        disabled={cart.length === 0}
                         onClick={() => {
-                          // Store cart in sessionStorage and redirect to checkout
+                          // Store cart in sessionStorage and navigate to checkout
                           sessionStorage.setItem('cart', JSON.stringify(cart));
-                          window.location.href = '/checkout';
+                          navigate('/checkout');
                         }}
                       >
                         <CreditCard className="mr-2 h-4 w-4" />
-                        Checkout
+                        Checkout (${cartTotal.toFixed(2)})
                       </Button>
                     </>
                   )}
