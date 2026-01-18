@@ -18,6 +18,7 @@ import Crowdfunding from "./pages/Crowdfunding";
 import CampaignDetail from "./pages/CampaignDetail";
 import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
+import OrderTracking from "./pages/OrderTracking";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +39,9 @@ const App = () => (
             <Route path="/give" element={<Donate />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/track-order" element={<OrderTracking />} />
             <Route path="/crowdfunding" element={<Crowdfunding />} />
+            <Route path="/crowdfunding/:slug" element={<CampaignDetail />} />
             <Route path="/campaign/:slug" element={<CampaignDetail />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
