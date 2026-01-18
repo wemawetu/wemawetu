@@ -414,6 +414,81 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_first_name: string
+          customer_last_name: string
+          customer_phone: string | null
+          id: string
+          items: Json
+          notes: string | null
+          order_number: string
+          order_status: string
+          payment_method: string
+          payment_reference: string | null
+          payment_status: string
+          shipping_address: string | null
+          shipping_city: string | null
+          shipping_country: string | null
+          shipping_fee: number
+          subtotal: number
+          total_amount: number
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_first_name: string
+          customer_last_name: string
+          customer_phone?: string | null
+          id?: string
+          items: Json
+          notes?: string | null
+          order_number: string
+          order_status?: string
+          payment_method: string
+          payment_reference?: string | null
+          payment_status?: string
+          shipping_address?: string | null
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_fee?: number
+          subtotal: number
+          total_amount: number
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_first_name?: string
+          customer_last_name?: string
+          customer_phone?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_number?: string
+          order_status?: string
+          payment_method?: string
+          payment_reference?: string | null
+          payment_status?: string
+          shipping_address?: string | null
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_fee?: number
+          subtotal?: number
+          total_amount?: number
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_config: {
         Row: {
           config: Json | null

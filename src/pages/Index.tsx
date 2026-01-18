@@ -1,6 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
+import { FeaturedCampaigns } from "@/components/home/FeaturedCampaigns";
 import { ProgramsSection } from "@/components/home/ProgramsSection";
 import { MissionSection } from "@/components/home/MissionSection";
 import { ImpactSection } from "@/components/home/ImpactSection";
@@ -13,6 +14,7 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
+        <FeaturedCampaigns />
         <MissionSection />
         <ProgramsSection />
         <ImpactSection />

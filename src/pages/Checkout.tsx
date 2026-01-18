@@ -206,20 +206,59 @@ export default function Checkout() {
 
     setProcessing(true);
     const method = paymentMethods.find((p) => p.provider === selectedPaymentMethod);
-    const reference = `MERCH-${Date.now()}`;
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
 
     // Convert to KES for M-Pesa (always charge in KES for M-Pesa)
     const kesRate = exchangeRates["KES"] || 153.5;
     const amountInKes = Math.round(cartTotal * kesRate);
 
+    // Prepare order items for storage
+    const orderItems = cart.map(c => ({
+      id: c.item.id,
+      name: c.item.name,
+      price: c.item.price,
+      quantity: c.quantity,
+      image_url: c.item.image_url,
+    }));
+
     try {
+      // Create order in database
+      const { error: orderError } = await supabase.from("orders").insert({
+        order_number: orderNumber,
+        customer_first_name: firstName,
+        customer_last_name: lastName,
+        customer_email: email,
+        customer_phone: mpesaPhone || null,
+        shipping_address: address || null,
+        shipping_city: city || null,
+        shipping_country: country || null,
+        items: orderItems,
+        subtotal: cartTotal,
+        shipping_fee: 0,
+        total_amount: cartTotal,
+        currency: selectedCurrency,
+        payment_method: selectedPaymentMethod,
+        payment_status: "pending",
+        order_status: "pending",
+        payment_reference: orderNumber,
+      });
+
+      if (orderError) {
+        console.error("Order creation error:", orderError);
+        // Continue with payment even if order save fails
+      }
+
       if (selectedPaymentMethod === "paypal") {
         const paypalEmail = method?.config?.email;
         if (paypalEmail) {
           window.open(`https://www.paypal.com/paypalme/${paypalEmail}/${cartTotal}`, "_blank");
           sessionStorage.removeItem('cart');
           setCart([]);
-          toast({ title: "Redirecting to PayPal" });
+          toast({ 
+            title: "Order Created!", 
+            description: `Order ${orderNumber} - Redirecting to PayPal` 
+          });
+          navigate(`/track-order?search=${encodeURIComponent(email)}`);
         } else {
           toast({ title: "PayPal not configured", variant: "destructive" });
         }
@@ -232,8 +271,8 @@ export default function Checkout() {
 
         const mpesaReference =
           selectedPaymentMethod === "mpesa_paybill"
-            ? String(method?.config?.account_reference || reference)
-            : reference;
+            ? String(method?.config?.account_reference || orderNumber)
+            : orderNumber;
 
         const { data, error } = await supabase.functions.invoke("mpesa-stk-push", {
           body: {
@@ -253,6 +292,7 @@ export default function Checkout() {
           });
           sessionStorage.removeItem('cart');
           setCart([]);
+          navigate(`/track-order?search=${encodeURIComponent(email)}`);
         } else {
           toast({
             title: "M-Pesa Error",
@@ -266,6 +306,11 @@ export default function Checkout() {
           window.open(embedUrl, "_blank");
           sessionStorage.removeItem('cart');
           setCart([]);
+          toast({ 
+            title: "Order Created!", 
+            description: `Order ${orderNumber}` 
+          });
+          navigate(`/track-order?search=${encodeURIComponent(email)}`);
         } else {
           toast({ title: "Donorbox not configured", variant: "destructive" });
         }
