@@ -333,6 +333,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_config: {
+        Row: {
+          created_at: string
+          enabled: boolean | null
+          from_email: string | null
+          from_name: string | null
+          id: string
+          smtp_host: string | null
+          smtp_password: string | null
+          smtp_port: number | null
+          smtp_user: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: string
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_user?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean | null
+          from_email?: string | null
+          from_name?: string | null
+          id?: string
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_user?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       impact_stats: {
         Row: {
           active: boolean | null
