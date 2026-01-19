@@ -112,6 +112,7 @@ export function Footer() {
                 { href: "/impact", label: "Our Impact" },
                 { href: "/blog", label: "News & Stories" },
                 { href: "/get-involved", label: "Get Involved" },
+                { href: "/track-order", label: "Track Your Order" },
                 { href: "/contact", label: "Contact Us" },
               ].map((link) => (
                 <li key={link.href}>
