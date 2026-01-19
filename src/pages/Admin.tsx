@@ -16,8 +16,9 @@ import { ContactInfoTab } from "@/components/admin/ContactInfoTab";
 import CampaignsTab from "@/components/admin/CampaignsTab";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { OrdersTab } from "@/components/admin/OrdersTab";
+import { EmailConfigTab } from "@/components/admin/EmailConfigTab";
 
-type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise" | "campaigns" | "analytics" | "orders";
+type TabType = "dashboard" | "blogs" | "announcements" | "contacts" | "submissions" | "impact" | "programs" | "crypto" | "payments" | "merchandise" | "campaigns" | "analytics" | "orders" | "email";
 
 interface Blog {
   id: string;
@@ -389,6 +390,7 @@ export default function Admin() {
     { id: "crypto", label: "Crypto Coin", icon: Coins },
     { id: "payments", label: "Payment Methods", icon: CreditCard },
     { id: "merchandise", label: "Merchandise", icon: ShoppingBag },
+    { id: "email", label: "Email Settings", icon: Mail },
   ];
 
   const iconOptions = ["Users", "Droplets", "Home", "TreePine", "GraduationCap", "Heart", "Leaf"];
@@ -832,6 +834,9 @@ export default function Admin() {
 
           {/* Campaigns / Crowdfunding */}
           {activeTab === "campaigns" && <CampaignsTab />}
+
+          {/* Email Settings */}
+          {activeTab === "email" && <EmailConfigTab />}
         </main>
       </div>
     </div>
