@@ -88,6 +88,8 @@ export function OrdersTab() {
 
   async function updateOrderStatus(orderId: string, field: "order_status" | "payment_status", value: string) {
     setUpdating(true);
+    const order = orders.find(o => o.id === orderId);
+    
     const { error } = await supabase
       .from("orders")
       .update({ [field]: value })
@@ -97,6 +99,29 @@ export function OrdersTab() {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Updated", description: `Order ${field.replace("_", " ")} updated` });
+      
+      // Send email notification for order status changes
+      if (field === "order_status" && order && ["confirmed", "processing", "shipped", "delivered", "cancelled"].includes(value)) {
+        try {
+          await supabase.functions.invoke("send-order-notification", {
+            body: {
+              customerEmail: order.customer_email,
+              customerName: `${order.customer_first_name} ${order.customer_last_name}`,
+              orderNumber: order.order_number,
+              orderStatus: value,
+              trackingNumber: order.tracking_number,
+              items: order.items,
+              totalAmount: order.total_amount,
+              currency: order.currency,
+            },
+          });
+          toast({ title: "Email Sent", description: "Customer notification sent" });
+        } catch (emailError) {
+          console.error("Email notification error:", emailError);
+          // Don't show error to user, email is secondary
+        }
+      }
+      
       loadOrders();
       if (selectedOrder?.id === orderId) {
         setSelectedOrder({ ...selectedOrder, [field]: value });

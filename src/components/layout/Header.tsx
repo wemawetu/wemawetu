@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/crowdfunding", label: "Crowdfunding" },
   { href: "/blog", label: "Blog" },
   { href: "/get-involved", label: "Get Involved" },
+  { href: "/track-order", label: "Track Order" },
   { href: "/contact", label: "Contact" },
   { href: "/give", label: "Donate" },
 ];

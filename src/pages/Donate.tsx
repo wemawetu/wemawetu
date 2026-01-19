@@ -7,9 +7,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Heart, Droplets, Home, BookOpen, TreePine, 
   CheckCircle, Shield, Gift, CreditCard, Smartphone,
-  ShoppingBag, Sparkles, Package, Loader2, ExternalLink
+  ShoppingBag, Sparkles, Package, Loader2, ExternalLink,
+  Globe, RefreshCw
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PaymentConfig {
   id: string;
@@ -35,6 +43,23 @@ interface Merchandise {
 }
 
 const donationAmounts = [25, 50, 100, 250, 500, 1000];
+
+const currencies = [
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "KES", symbol: "KSh", name: "Kenyan Shilling" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "British Pound" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "NGN", symbol: "₦", name: "Nigerian Naira" },
+  { code: "ZAR", symbol: "R", name: "South African Rand" },
+  { code: "TZS", symbol: "TSh", name: "Tanzanian Shilling" },
+  { code: "UGX", symbol: "USh", name: "Ugandan Shilling" },
+];
+
+interface ExchangeRates {
+  [key: string]: number;
+}
 
 const impactCards = [
   { amount: 25, icon: Droplets, impact: "Provides clean water for 1 family for a month" },
@@ -74,6 +99,12 @@ export default function Donate() {
   const [cart, setCart] = useState<{item: Merchandise, quantity: number}[]>([]);
   const { toast } = useToast();
 
+  // Currency state
+  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
+  const [ratesLoading, setRatesLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
   // Form fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -88,7 +119,52 @@ export default function Donate() {
 
   useEffect(() => {
     loadData();
+    fetchExchangeRates();
   }, []);
+
+  async function fetchExchangeRates() {
+    setRatesLoading(true);
+    try {
+      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const data = await response.json();
+      if (data.rates) {
+        setExchangeRates(data.rates);
+        setLastUpdated(new Date());
+      }
+    } catch (error) {
+      console.error("Failed to fetch exchange rates", error);
+      // Fallback rates
+      setExchangeRates({
+        USD: 1,
+        KES: 153.5,
+        EUR: 0.92,
+        GBP: 0.79,
+        CAD: 1.36,
+        AUD: 1.53,
+        NGN: 1550,
+        ZAR: 18.5,
+        TZS: 2520,
+        UGX: 3750,
+      });
+      setLastUpdated(new Date());
+    }
+    setRatesLoading(false);
+  }
+
+  function convertPrice(usdPrice: number): number {
+    const rate = exchangeRates[selectedCurrency] || 1;
+    return usdPrice * rate;
+  }
+
+  function formatPrice(amount: number): string {
+    const currency = currencies.find(c => c.code === selectedCurrency);
+    const converted = convertPrice(amount);
+    
+    if (selectedCurrency === "USD" || selectedCurrency === "EUR" || selectedCurrency === "GBP") {
+      return `${currency?.symbol}${converted.toFixed(2)}`;
+    }
+    return `${currency?.symbol}${Math.round(converted).toLocaleString()}`;
+  }
 
   async function loadData() {
     const [paymentsRes, merchandiseRes] = await Promise.all([
@@ -279,6 +355,46 @@ export default function Donate() {
                     Choose Your Donation
                   </h2>
 
+                  {/* Currency Selector */}
+                  <div className="bg-muted/30 rounded-xl p-4 mb-6">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-3">
+                        <Globe className="h-5 w-5 text-primary" />
+                        <span className="font-medium text-foreground">Currency</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                          <SelectTrigger className="w-[200px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {currencies.map((currency) => (
+                              <SelectItem key={currency.code} value={currency.code}>
+                                <span className="flex items-center gap-2">
+                                  <span className="font-mono">{currency.symbol}</span>
+                                  {currency.code} - {currency.name}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={fetchExchangeRates}
+                          disabled={ratesLoading}
+                        >
+                          <RefreshCw className={`h-4 w-4 ${ratesLoading ? 'animate-spin' : ''}`} />
+                        </Button>
+                      </div>
+                    </div>
+                    {lastUpdated && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Exchange rates updated: {lastUpdated.toLocaleTimeString()}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Frequency Toggle */}
                   <div className="flex gap-2 p-1 bg-muted rounded-lg mb-8">
                     <button
@@ -310,13 +426,16 @@ export default function Donate() {
                       <button
                         key={amount}
                         onClick={() => setSelectedAmount(amount)}
-                        className={`py-4 px-6 rounded-xl text-lg font-semibold transition-all ${
+                        className={`py-4 px-3 rounded-xl font-semibold transition-all ${
                           selectedAmount === amount
                             ? "bg-primary text-primary-foreground shadow-lg scale-105"
                             : "bg-muted text-foreground hover:bg-muted/80"
                         }`}
                       >
-                        ${amount}
+                        <span className="block text-lg">{formatPrice(amount)}</span>
+                        {selectedCurrency !== "USD" && (
+                          <span className="block text-xs opacity-70">${amount} USD</span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -485,7 +604,10 @@ export default function Donate() {
                     ) : (
                       <CreditCard className="mr-2 h-5 w-5" />
                     )}
-                    Donate ${displayAmount} {isMonthly ? "Monthly" : ""}
+                    Donate {formatPrice(displayAmount)} {isMonthly ? "Monthly" : ""}
+                    {selectedCurrency !== "USD" && displayAmount > 0 && (
+                      <span className="ml-1 text-xs opacity-70">(${displayAmount} USD)</span>
+                    )}
                   </Button>
 
                   {paymentMethods.length === 0 && (
